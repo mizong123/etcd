@@ -35,6 +35,7 @@ type raftLog struct {
 	// applied is the highest log position that the application has
 	// been instructed to apply to its state machine.
 	// Invariant: applied <= committed
+	// 表示了状态机已经应用的最大日志索引
 	applied uint64
 
 	logger Logger

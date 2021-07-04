@@ -27,6 +27,7 @@ import (
 // NB(tbg): Progress is basically a state machine whose transitions are mostly
 // strewn around `*raft.raft`. Additionally, some fields are only used when in a
 // certain State. All of this isn't ideal.
+// follower追赶leader的进度对象
 type Progress struct {
 	Match, Next uint64
 	// State defines how the leader should interact with the follower.
@@ -40,6 +41,7 @@ type Progress struct {
 	//
 	// When in StateSnapshot, leader should have sent out snapshot
 	// before and stops sending any replication message.
+	// 定义了leader和follower交互的方式
 	State StateType
 
 	// PendingSnapshot is used in StateSnapshot.
@@ -47,6 +49,7 @@ type Progress struct {
 	// index of the snapshot. If pendingSnapshot is set, the replication process of
 	// this Progress will be paused. raft will not resend snapshot until the pending one
 	// is reported to be failed.
+	// 代表snapshot是否正在执行快照
 	PendingSnapshot uint64
 
 	// RecentActive is true if the progress is recently active. Receiving any messages
@@ -54,11 +57,13 @@ type Progress struct {
 	// RecentActive can be reset to false after an election timeout.
 	//
 	// TODO(tbg): the leader should always have this set to true.
+	// 代表progress是否存活
 	RecentActive bool
 
 	// ProbeSent is used while this follower is in StateProbe. When ProbeSent is
 	// true, raft should pause sending replication message to this peer until
 	// ProbeSent is reset. See ProbeAcked() and IsPaused().
+	// 代表follower是否正处于探测状态
 	ProbeSent bool
 
 	// Inflights is a sliding window for the inflight messages.
@@ -73,9 +78,11 @@ type Progress struct {
 	// When a leader receives a reply, the previous inflights should
 	// be freed by calling inflights.FreeLE with the index of the last
 	// received entry.
+	// inflight message的滑动窗口
 	Inflights *Inflights
 
 	// IsLearner is true if this progress is tracked for a learner.
+	// 是否为learner
 	IsLearner bool
 }
 

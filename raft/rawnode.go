@@ -31,6 +31,7 @@ var ErrStepPeerNotFound = errors.New("raft: cannot step as peer not found")
 // RawNode is a thread-unsafe Node.
 // The methods of this struct correspond to the methods of Node and are described
 // more fully there.
+// 一个线程不安全的Node
 type RawNode struct {
 	raft       *raft
 	prevSoftSt *SoftState
@@ -67,11 +68,13 @@ func (rn *RawNode) Tick() {
 //
 // WARNING: Be very careful about using this method as it subverts the Raft
 // state machine. You should probably be using Tick instead.
+// 自增逻辑时钟 WARNING
 func (rn *RawNode) TickQuiesced() {
 	rn.raft.electionElapsed++
 }
 
 // Campaign causes this RawNode to transition to candidate state.
+// node过度至candidate状态
 func (rn *RawNode) Campaign() error {
 	return rn.raft.Step(pb.Message{
 		Type: pb.MsgHup,
@@ -101,6 +104,8 @@ func (rn *RawNode) ProposeConfChange(cc pb.ConfChangeI) error {
 // ApplyConfChange applies a config change to the local node. The app must call
 // this when it applies a configuration change, except when it decides to reject
 // the configuration change, in which case no call must take place.
+// 将集群配置的变更应用到节点上
+// todo to read
 func (rn *RawNode) ApplyConfChange(cc pb.ConfChangeI) *pb.ConfState {
 	cs := rn.raft.applyConfChange(cc.AsV2())
 	return &cs

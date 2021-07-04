@@ -24,6 +24,7 @@ import (
 )
 
 // Config reflects the configuration tracked in a ProgressTracker.
+// ProgressTracker的配置
 type Config struct {
 	Voters quorum.JointConfig
 	// AutoLeave is true if the configuration is joint and a transition to the
@@ -39,6 +40,7 @@ type Config struct {
 	// learner it can't be in either half of the joint config. This invariant
 	// simplifies the implementation since it allows peers to have clarity about
 	// its current role without taking into account joint consensus.
+	// 类似paxos中的leader角色 不参与竞选 不可以与voters中的任何一个有交集
 	Learners map[uint64]struct{}
 	// When we turn a voter into a learner during a joint consensus transition,
 	// we cannot add the learner directly when entering the joint state. This is
@@ -74,6 +76,7 @@ type Config struct {
 	// also a voter in the joint config. In this case, the learner is added
 	// right away when entering the joint configuration, so that it is caught up
 	// as soon as possible.
+	// 保证不等式的字段
 	LearnersNext map[uint64]struct{}
 }
 
@@ -114,6 +117,7 @@ func (c *Config) Clone() Config {
 // ProgressTracker tracks the currently active configuration and the information
 // known about the nodes and learners in it. In particular, it tracks the match
 // index for each peer which in turn allows reasoning about the committed index.
+// 追踪当前的node和learner
 type ProgressTracker struct {
 	Config
 

@@ -21,6 +21,7 @@ import pb "go.etcd.io/etcd/raft/v3/raftpb"
 // this state from ready, it's also caller's duty to differentiate if this
 // state is what it requests through RequestCtx, eg. given a unique id as
 // RequestCtx
+// 只读请求的状态
 type ReadState struct {
 	Index      uint64
 	RequestCtx []byte
@@ -36,6 +37,7 @@ type readIndexStatus struct {
 	acks map[uint64]bool
 }
 
+// 一次只读请求
 type readOnly struct {
 	option           ReadOnlyOption
 	pendingReadIndex map[string]*readIndexStatus
@@ -53,6 +55,7 @@ func newReadOnly(option ReadOnlyOption) *readOnly {
 // `index` is the commit index of the raft state machine when it received
 // the read only request.
 // `m` is the original read only request message from the local or remote node.
+// 以请求为key
 func (ro *readOnly) addRequest(index uint64, m pb.Message) {
 	s := string(m.Entries[0].Data)
 	if _, ok := ro.pendingReadIndex[s]; ok {
@@ -65,6 +68,7 @@ func (ro *readOnly) addRequest(index uint64, m pb.Message) {
 // recvAck notifies the readonly struct that the raft state machine received
 // an acknowledgment of the heartbeat that attached with the read only request
 // context.
+// 收到了一个节点 readIndex的确认
 func (ro *readOnly) recvAck(id uint64, context []byte) map[uint64]bool {
 	rs, ok := ro.pendingReadIndex[string(context)]
 	if !ok {
@@ -78,6 +82,7 @@ func (ro *readOnly) recvAck(id uint64, context []byte) map[uint64]bool {
 // advance advances the read only request queue kept by the readonly struct.
 // It dequeues the requests until it finds the read only request that has
 // the same context as the given `m`.
+// 推进到m 舍弃m之前的readIndex请求
 func (ro *readOnly) advance(m pb.Message) []*readIndexStatus {
 	var (
 		i     int
