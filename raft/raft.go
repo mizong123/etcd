@@ -56,7 +56,7 @@ const (
 	// If the clock drift is unbounded, leader might keep the lease longer than it
 	// should (clock can move backward/pause without any bound). ReadIndex is not safe
 	// in that case.
-	// 只基于主的读取
+	// 对线性化读取的一种想象时钟问题边界的fast path
 	ReadOnlyLeaseBased
 )
 
@@ -79,6 +79,7 @@ var ErrProposalDropped = errors.New("raft proposal dropped")
 // lockedRand is a small wrapper around rand.Rand to provide
 // synchronization among multiple raft groups. Only the methods needed
 // by the code are exposed (e.g. Intn).
+// 线程安全的rand
 type lockedRand struct {
 	mu   sync.Mutex
 	rand *rand.Rand
@@ -1651,8 +1652,10 @@ func (r *raft) applyConfChange(cc pb.ConfChangeV2) pb.ConfState {
 			LastIndex: r.raftLog.lastIndex(),
 		}
 		if cc.LeaveJoint() {
+			//
 			return changer.LeaveJoint()
 		} else if autoLeave, ok := cc.EnterJoint(); ok {
+			// Joint Consequence
 			return changer.EnterJoint(autoLeave, cc.Changes...)
 		}
 		return changer.Simple(cc.Changes...)

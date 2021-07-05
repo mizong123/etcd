@@ -89,6 +89,7 @@ func (c Changer) EnterJoint(autoLeave bool, ccs ...pb.ConfChangeSingle) (tracker
 // inserted into Learners.
 //
 // [1]: https://github.com/ongardie/dissertation/blob/master/online-trim.pdf
+// 从joint consequence 移除C_old
 func (c Changer) LeaveJoint() (tracker.Config, tracker.ProgressMap, error) {
 	cfg, prs, err := c.checkAndCopy()
 	if err != nil {
@@ -102,12 +103,14 @@ func (c Changer) LeaveJoint() (tracker.Config, tracker.ProgressMap, error) {
 		err := fmt.Errorf("configuration is not joint: %v", cfg)
 		return c.err(err)
 	}
+	// 将learner_next迁移至learner中
 	for id := range cfg.LearnersNext {
 		nilAwareAdd(&cfg.Learners, id)
 		prs[id].IsLearner = true
 	}
 	cfg.LearnersNext = nil
 
+	// 将outgoing中 在incoming中既不是voter也不是learner的节点progress删除
 	for id := range outgoing(cfg.Voters) {
 		_, isVoter := incoming(cfg.Voters)[id]
 		_, isLearner := cfg.Learners[id]

@@ -105,7 +105,6 @@ func (rn *RawNode) ProposeConfChange(cc pb.ConfChangeI) error {
 // this when it applies a configuration change, except when it decides to reject
 // the configuration change, in which case no call must take place.
 // 将集群配置的变更应用到节点上
-// todo to read
 func (rn *RawNode) ApplyConfChange(cc pb.ConfChangeI) *pb.ConfState {
 	cs := rn.raft.applyConfChange(cc.AsV2())
 	return &cs

@@ -73,6 +73,7 @@ func (c ConfChangeV2) AsV1() (ConfChange, bool) { return ConfChange{}, false }
 // than one change or if the use of Joint Consensus was requested explicitly.
 // The first bool can only be true if second one is, and indicates whether the
 // Joint State will be left automatically.
+// 第二个布尔值代表这次enterJoint是否使用Joint Consensus
 func (c ConfChangeV2) EnterJoint() (autoLeave bool, ok bool) {
 	// NB: in theory, more config changes could qualify for the "simple"
 	// protocol but it depends on the config on top of which the changes apply.
