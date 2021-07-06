@@ -42,6 +42,7 @@ type raftLog struct {
 
 	// maxNextEntsSize is the maximum number aggregate byte size of the messages
 	// returned from calls to nextEnts.
+	// 限制了nextEnts返回的日志条目最大数量
 	maxNextEntsSize uint64
 }
 

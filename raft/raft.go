@@ -259,6 +259,7 @@ func (c *Config) validate() error {
 }
 
 type raft struct {
+	// 唯一id
 	id uint64
 
 	Term uint64
